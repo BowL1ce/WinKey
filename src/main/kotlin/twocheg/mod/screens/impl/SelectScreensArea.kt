@@ -18,7 +18,7 @@ import java.lang.reflect.Constructor
 import java.util.*
 
 
-class SelectScreensArea<T : Class<out Screen>>(vararg val guiClasses: T) : RenderArea() {
+class SelectScreensArea<T : Class<out Screen>>(vararg val guiClasses: T) : RenderArea(zIndex = 5f) {
     var currentGuiClass: T
     val defaultGuiClass: T
 
@@ -43,7 +43,7 @@ class SelectScreensArea<T : Class<out Screen>>(vararg val guiClasses: T) : Rende
         for (c in guiClasses) {
             areas.add(
                 ValueArea(
-                    this,
+                    this, zIndex + 2,
                     c, this::setScreen,
                     { currentGuiClass },
                     c.simpleName
@@ -51,10 +51,9 @@ class SelectScreensArea<T : Class<out Screen>>(vararg val guiClasses: T) : Rende
             )
         }
         areas.add(ModuleSearchArea(this) {
-            if (!isSearch) isSearch = true
-            else {
-                isSearch = false
-            }
+            isActive ->
+            isSearch = isActive
+            areas.last().show = isActive
         })
 
         this.y = 10f
@@ -106,14 +105,14 @@ class SelectScreensArea<T : Class<out Screen>>(vararg val guiClasses: T) : Rende
             .blurRadius(12f)
             .color(QuadColorState(fromRGB(110, 110, 110, 255 * showFactor.get())))
             .build()
-        blur.render(matrix, this.x, this.y, 2f)
+        blur.render(matrix, this.x, this.y, zIndex)
         Builder.border()
             .size(blur.size)
             .color(QuadColorState(fromRGB(255, 255, 255, 10 * showFactor.get())))
             .radius(QuadRadiusState(6f))
             .thickness(0.2f)
             .build()
-            .render(matrix, this.x, this.y, 3f)
+            .render(matrix, this.x, this.y, zIndex + 1)
 
         context.enableScissor(
             (this.x + 1).toInt(),
@@ -134,7 +133,7 @@ class SelectScreensArea<T : Class<out Screen>>(vararg val guiClasses: T) : Rende
             .radius(rectangle.radius())
             .thickness(0.1f)
             .build()
-            .render(matrix, targetX.get(), targetY.get(), 3f)
+            .render(matrix, targetX.get(), targetY.get(), zIndex + 1)
 
         if (searchDelta.get() < 0.1f) setCords()
         else {

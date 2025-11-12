@@ -10,13 +10,12 @@ class Group(
     init {
         for (setting in settings) {
             setting.parentGroup = this
-//            setting.config!!.keyPath += ".$name"
         }
     }
 }
 
 class ToggleableGroup(
-    name: String,
+    override val name: String,
     defaultValue: Boolean = false,
     vararg settings: Setting<*>
 ) : Setting<Boolean>(name, defaultValue) {
@@ -25,7 +24,6 @@ class ToggleableGroup(
     init {
         for (setting in childSettings) {
             setting.parentGroup = this
-//            setting.config!!.keyPath += ".$name"
         }
     }
 

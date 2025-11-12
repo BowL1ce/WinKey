@@ -75,6 +75,9 @@ open class Setting<T>(
 
     fun init(config: ConfigManager) {
         this.config = config
+        if (parentGroup != null) {
+            config.keyPath += ".${(parentGroup as Setting<*>).name}"
+        }
         val savedValue = config.get(name, if (isList) optionIndex else defaultValue)
 
         if (isList) {

@@ -32,7 +32,7 @@ class CategoryArea(
     }
 
     init {
-        for (module in modules) areas.add(ModuleArea(module, this))
+        for (module in modules) areas.add(ModuleArea(module, this, zIndex + 1))
     }
 
     override fun render(

@@ -15,8 +15,9 @@ import twocheg.mod.utils.math.fromRGB
 
 class ModuleArea(
     val module: Parent,
-    override val parentArea: RenderArea
-) : RenderArea(parentArea) {
+    override val parentArea: RenderArea,
+    override val zIndex: Float
+) : RenderArea(parentArea, zIndex) {
     val enableFactor = Delta({ module.enable })
 
     var expanded = false
@@ -61,7 +62,7 @@ class ModuleArea(
         val textY = y + (height / 2 - text.size / 2)
         text.render(matrix, textX, textY)
 
-        val borderLineWidth = text.width + 4f // я сам не ебу почему нужно добавить 4
+        val borderLineWidth = text.width
         Builder.rectangle()
             .size(SizeState(borderLineWidth * enableFactor.get(), 2f))
             .radius(QuadRadiusState(1f))

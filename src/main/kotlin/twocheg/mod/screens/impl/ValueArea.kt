@@ -13,11 +13,12 @@ import java.util.function.Supplier
 
 class ValueArea<T>(
     override val parentArea: RenderArea?,
+    override val zIndex: Float = 0f,
     var value: T,
     val task: Consumer<T>,
     val currentValue: Supplier<T>, // для анимаций
     val valueName: String,
-) : RenderArea(parentArea) {
+) : RenderArea(parentArea, zIndex) {
     val alpha = Delta({ currentValue.get() == value }, 400)
 
     override fun render(
@@ -53,7 +54,7 @@ class ValueArea<T>(
 //                .render(matrix, x, y, 1f)
 //        }
 
-        text.render(matrix, x + PADDING, y + PADDING, 5f)
+        text.render(matrix, x + PADDING, y + PADDING, zIndex + 1)
 
         super.render(context, matrix, x, y, this.width, this.height, mouseX, mouseY)
     }

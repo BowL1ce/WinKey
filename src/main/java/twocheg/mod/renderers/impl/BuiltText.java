@@ -33,7 +33,7 @@ public record BuiltText(
 		VertexFormats.POSITION_TEXTURE_COLOR, Defines.EMPTY);
 
     public float getWidth() {
-        return font.getWidth(text, size);
+        return font.getWidth(text, size) * 1.066f; // так надо
     }
 	
 	@Override

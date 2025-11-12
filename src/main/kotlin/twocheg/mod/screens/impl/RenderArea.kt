@@ -15,6 +15,7 @@ import twocheg.mod.utils.math.random
 
 abstract class RenderArea(
     open val parentArea: RenderArea? = null,
+    open val zIndex: Float = 0f
 ) {
     var x = 0f
     var y = 0f

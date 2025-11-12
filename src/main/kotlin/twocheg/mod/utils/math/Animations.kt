@@ -57,7 +57,7 @@ class Delta(
         val deltaMs = (now - lastUpdateTime) / 1_000_000f
         lastUpdateTime = now
 
-        return (if (mode == CurveType.Pulse) {
+        return (if (mode == CurveType.Pulse && directionProvider()) {
             accumulatedTime += deltaMs
             calculateSinePulseProgress()
         } else {
