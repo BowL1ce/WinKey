@@ -1,0 +1,31 @@
+{
+	"schemaVersion": 1,
+	"id": "win_key",
+	"version": "${version}",
+	"name": "WinKey",
+	"description": "описание украли циганэ, но зато интерфейс крутой 👍",
+	"authors": [
+		"TWOCHEG"
+	],
+	"license": "CC0-1.0",
+	"icon": "assets/mod/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+          "twocheg.mod.ModKt::init"
+		]
+	},
+	"mixins": [
+      "mod.mixins.json"
+	],
+    "depends": {
+        "fabricloader": ">=0.16.10",
+        "minecraft": "~1.21.4",
+        "java": ">=21",
+        "fabric-api": "*"
+    },
+	"suggests": {
+		"another-mod": "*"
+	},
+    "accessWidener": "mod.accesswidener"
+}

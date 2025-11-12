@@ -1,0 +1,13 @@
+{
+  "required": true,
+  "package": "twocheg.mod.mixins",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MixinKeyboard"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "mixins": [
+  ]
+}
