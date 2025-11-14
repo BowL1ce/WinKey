@@ -84,7 +84,7 @@ abstract class Parent(
         config.set(key, value)
     }
 
-    inline fun <reified T> getValue(name: String, defaultValue: T): T {
+    fun <T : Any> getValue(name: String, defaultValue: T): T {
         @Suppress("UNCHECKED_CAST")
         return config.get(name, defaultValue)
     }

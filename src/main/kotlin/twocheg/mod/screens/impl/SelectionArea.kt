@@ -11,12 +11,13 @@ import twocheg.mod.utils.math.fromRGB
 
 class SelectionArea(
     override val parentArea: RenderArea,
-    val targetArea: () -> RenderArea? = { null }
+    val targetArea: () -> RenderArea? = { null },
+    val durationMs: Long = 400
 ) : RenderArea(parentArea) {
-    val targetX = Lerp(0f)
-    val targetY = Lerp(0f)
-    val targetWidth = Lerp(0f)
-    val targetHeight = Lerp(0f)
+    val targetX = Lerp(0f, durationMs)
+    val targetY = Lerp(0f, durationMs)
+    val targetWidth = Lerp(0f, durationMs)
+    val targetHeight = Lerp(0f, durationMs)
 
     override fun render(
         context: DrawContext,
@@ -41,7 +42,12 @@ class SelectionArea(
             height = targetArea.height
         }
 
-        if (targetX.get() == 0f && targetY.get() == 0f && targetWidth.get() == 0f && targetHeight.get() == 0f) {
+        if (
+            targetX.target == 0f &&
+            targetY.target == 0f &&
+            targetWidth.target == 0f &&
+            targetHeight.target == 0f
+        ) {
             targetX.forceSet(x)
             targetY.forceSet(y)
             targetWidth.forceSet(width!!)

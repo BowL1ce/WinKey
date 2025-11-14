@@ -25,7 +25,46 @@ class ConfigManager(
         if (keyPath != null) {
             key = "$keyPath.$key"
         }
-        return json.getOrDefault(key, default) as T
+
+        val rawValue = json[key] ?: return default
+
+        return when (default) {
+            is Number -> {
+                if (rawValue is Number) {
+                    @Suppress("UNCHECKED_CAST")
+                    when (default) {
+                        is Int -> rawValue.toInt() as T
+                        is Long -> rawValue.toLong() as T
+                        is Float -> rawValue.toFloat() as T
+                        is Double -> rawValue.toDouble() as T
+                        is Short -> rawValue.toShort() as T
+                        is Byte -> rawValue.toByte() as T
+                        else -> default
+                    }
+                } else {
+                    default
+                }
+            }
+            is Boolean -> {
+                when (rawValue) {
+                    is Boolean -> rawValue as T
+                    is String -> rawValue.toBoolean() as T
+                    is Number -> (rawValue.toInt() != 0) as T
+                    else -> default
+                }
+            }
+            is String -> {
+                rawValue.toString() as T
+            }
+            else -> {
+                try {
+                    @Suppress("UNCHECKED_CAST")
+                    rawValue as T
+                } catch (e: ClassCastException) {
+                    default
+                }
+            }
+        }
     }
 
     fun <T> set(key: String, value: T) {
@@ -45,7 +84,7 @@ class ConfigManager(
             .setPrettyPrinting()
             .create()
 
-        val CONFIG_DIR: Path = Path.of(System.getProperty("user.home"), ".wk")
+        val CONFIG_DIR: Path = Path.of(System.getProperty("user.home"), ".dl")
 
         const val CURRENT_KEY: String = "current"
         const val KEYBIND_KEY: String = "keybind"

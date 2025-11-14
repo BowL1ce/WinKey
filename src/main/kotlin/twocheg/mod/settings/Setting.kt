@@ -1,7 +1,7 @@
 package twocheg.mod.settings
 
 import twocheg.mod.managers.ConfigManager
-import twocheg.mod.utils.*
+import twocheg.mod.utils.humanizeEnumClassName
 
 open class Setting<T>(
     open val name: String,
@@ -9,106 +9,99 @@ open class Setting<T>(
     val min: T? = null,
     val max: T? = null,
     private val options: List<T>? = null,
-    private val visibility: (T) -> Boolean = { true },
+    open val visibility: (T) -> Boolean = { true },
     private val onChange: (T) -> Unit = {}
 ) {
     var parentGroup: Setting<*>? = null
         internal set
 
     var config: ConfigManager? = null
+        private set
 
-    private var optionIndex: Int = options?.indexOf(defaultValue) ?: 0
-
-    private var value: T? = if (options == null) defaultValue else null
+    private var _value: T = defaultValue
+    private var _index: Int = options?.indexOf(defaultValue) ?: -1
 
     init {
-        require(options == null || options.contains(defaultValue)) {
+        require(options == null || defaultValue in options) {
             "default value must be in options list"
         }
     }
 
+    open var value: T
+        get() = if (isList) options!![index] else _value
+        set(newValue) {
+            if (isList) {
+                val idx = options!!.indexOf(newValue)
+                if (idx != -1) index = idx
+            } else {
+                if (_value != newValue) {
+                    _value = newValue
+                    saveToConfig()
+                    onChange(newValue)
+                }
+            }
+        }
+
+    var index: Int
+        get() = if (isList) _index.coerceIn(0 until options!!.size) else -1
+        set(newIndex) {
+            if (!isList) return
+            val clamped = newIndex.coerceIn(0 until options!!.size)
+            if (_index != clamped) {
+                _index = clamped
+                saveToConfig()
+                onChange(options[clamped])
+            }
+        }
+
     val isList: Boolean get() = options != null
-    val isNum: Boolean get() = min != null && max != null
+    val isNumber: Boolean get() = min != null && max != null
     val isBoolean: Boolean get() = defaultValue is Boolean
     val isString: Boolean get() = defaultValue is String
 
-    fun getValue(): T {
-        return if (isList) {
-            options!![optionIndex.coerceIn(0 until options.size)]
-        } else {
-            value ?: defaultValue
-        }
-    }
-
-    fun getPow2Value(): Float {
-        return when (val v = getValue()) {
-            is Float -> v * v
-            is Int -> (v * v).toFloat()
-            else -> 0f
-        }
-    }
-
-    fun setValue(newValue: Any?) {
-        @Suppress("UNCHECKED_CAST")
-        val newValue = newValue as T
-
-        if (config != null && newValue != getValue()) {
-            if (isList) {
-                val newIndex = options!!.indexOf(newValue).takeUnless { it == -1 } ?: return
-                optionIndex = newIndex
-                config!!.set(name, newIndex)
-            } else {
-                value = newValue
-                config!!.set(name, newValue)
-            }
-
-            onChange(getValue())
-        }
-    }
-
-    fun getIndex(): Int = optionIndex
-
-    fun setIndex(newIndex: Int) {
-        if (!isList) return
-        val clamped = newIndex.coerceIn(0 until options!!.size)
-        setValue(options[clamped])
-    }
-
     fun getOptions(): List<T>? = options
+
+    fun isVisible(): Boolean = visibility(value)
+
+    fun getGroup(): Setting<*>? = parentGroup
+
+    fun resetToDefault() {
+        value = defaultValue
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun setAny(v: Any?) {
+        value = v as T
+    }
 
     fun init(config: ConfigManager) {
         this.config = config
-        if (parentGroup != null) {
-            config.keyPath += ".${(parentGroup as Setting<*>).name}"
-        }
-        val savedValue = config.get(name, if (isList) optionIndex else defaultValue)
+        val keyPath = if (parentGroup != null) {
+            config.keyPath + ".${parentGroup!!.name}"
+        } else config.keyPath
+
+        val saved = config.get(name, if (isList) _index else _value)
 
         if (isList) {
             @Suppress("UNCHECKED_CAST")
-            setIndex(savedValue as Int)
+            index = saved as Int
         } else {
             @Suppress("UNCHECKED_CAST")
-            setValue(savedValue as T)
+            value = saved as T
         }
     }
 
-    fun resetToDefault() {
-        setValue(defaultValue)
-    }
-
-    fun isVisible(): Boolean {
-        return visibility(getValue())
-    }
-
-    fun getGroup(): Setting<*>? {
-        return parentGroup
+    private fun saveToConfig() {
+        config?.let {
+            if (isList) it.set(name, index) else it.set(name, _value)
+        }
     }
 
     companion object {
         @JvmStatic
         inline fun <reified E : Enum<E>> fromEnum(defaultValue: E): Setting<E> {
             val name = humanizeEnumClassName(defaultValue::class.java)
-            val options = enumEntries<E>()
+            val options = enumValues<E>().toList()
             return Setting(name, defaultValue, options = options)
         }
 

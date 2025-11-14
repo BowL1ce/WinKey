@@ -4,7 +4,7 @@ enum class GroupLayout { VERTICAL, TAB }
 
 class Group(
     override val name: String,
-    settings: List<Setting<*>>,
+    val settings: List<Setting<*>>,
     val layout: GroupLayout = GroupLayout.VERTICAL
 ) : Setting<Setting<*>>(name, settings[0], options = settings) {
     init {
@@ -16,13 +16,11 @@ class Group(
 
 class ToggleableGroup(
     override val name: String,
-    defaultValue: Boolean = false,
-    vararg settings: Setting<*>
+    override val defaultValue: Boolean = false,
+    val settings: List<Setting<*>>,
 ) : Setting<Boolean>(name, defaultValue) {
-    val childSettings = settings.toList()
-
     init {
-        for (setting in childSettings) {
+        for (setting in settings) {
             setting.parentGroup = this
         }
     }

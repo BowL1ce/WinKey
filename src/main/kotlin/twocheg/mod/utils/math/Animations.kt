@@ -80,7 +80,7 @@ class Delta(
 
 class Pulse(
     val direct: () -> Boolean,
-    val durationMs: Long = 400,
+    val durationMs: Long = 800,
     val parentFactor: () -> Float = { 1f }
 ) {
     private var accumulatedTime: Float = 0f
@@ -138,34 +138,63 @@ class Pulse(
 }
 
 class Lerp(
-    initialValue: Float,
-    durationMs: Long = 400,
-    mode: AnimType = AnimType.EaseInOut
+    val initialValue: Float,
+    durationMs: Long = 200,
+    val mode: AnimType = AnimType.EaseInOut
 ) {
-    var startValue = initialValue
-    var currentValue = initialValue
-    var targetValue = initialValue
-    private val delta = Delta({ true }, durationMs, mode)
+    var current: Float = initialValue
+        private set
+    var target: Float = initialValue
+    private val durationSec = durationMs.coerceAtLeast(1L) / 1000f
+    private var lastTime: Long? = null
 
     fun set(newTarget: Float) {
-        if (newTarget == targetValue) return
-        startValue = currentValue
-        targetValue = newTarget
-        delta.reset()
+        if (newTarget == target && lastTime != null) return
+        target = newTarget
+        if (lastTime == null) {
+            lastTime = System.nanoTime()
+            current = initialValue
+        }
     }
 
-    fun forceSet(newTarget: Float) {
-        startValue = newTarget
-        currentValue = newTarget
-        targetValue = newTarget
+    fun forceSet(newValue: Float) {
+        current = newValue
+        target = newValue
+        lastTime = System.nanoTime()
     }
 
     fun get(): Float {
-        currentValue = lerp(startValue, targetValue, delta.get())
-        return currentValue
-    }
+        if (current == target) {
+            lastTime = System.nanoTime()
+            return current
+        }
 
-    private fun lerp(start: Float, end: Float, t: Float): Float {
-        return start + (end - start) * t
+        val now = System.nanoTime()
+        val startTime = lastTime ?: now
+        val elapsedSec = (now - startTime) / 1e9f
+
+        lastTime = now
+
+        if (elapsedSec >= durationSec) {
+            current = target
+            return current
+        }
+
+        val dt = (now - startTime).coerceAtMost(100_000_000L) / 1e9f
+            .coerceAtLeast(0.001f)
+
+        val tau = durationSec / 6.907f
+        val k = 1f - exp(-dt / tau)
+
+        val easedK = mode.get(k).coerceIn(0f, 1f)
+
+        current += (target - current) * easedK
+
+        val diff = abs(target - current)
+        if (diff < 1e-4f || (target != 0f && diff / abs(target) < 1e-4f)) {
+            current = target
+        }
+
+        return current
     }
 }

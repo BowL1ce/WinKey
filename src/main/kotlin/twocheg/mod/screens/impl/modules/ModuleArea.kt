@@ -58,23 +58,21 @@ class ModuleArea(
         mouseX: Double,
         mouseY: Double
     ) {
-        val settingsHeight = (areas.sumOf { (it.totalHeight + PADDING * (it as SettingArea<*>).visibleFactor.get()).toInt() } + PADDING)
         val factoredHeight = (areas.sumOf { (it.height + PADDING * (it as SettingArea<*>).visibleFactor.get()).toInt() } + PADDING) * expandedFactor.get()
         this.height = height!! + factoredHeight
 
-        totalHeight = height + if (expanded) settingsHeight else 0f
-
-        val c = 0 + (50 * (1 - expandedFactor.get()) * enableFactor.get()).toInt()
-        val rectangle = Builder.rectangle()
+        val c = 160 + (60 * (1 - expandedFactor.get()) * enableFactor.get()).toInt()
+        val blur = Builder.blur()
             .size(SizeState(width!!, this.height))
             .radius(QuadRadiusState(6f))
-            .color(QuadColorState(fromRGB(c, c, c, 40 * showFactor.get())))
+            .blurRadius(12f)
+            .color(QuadColorState(fromRGB(c, c, c, 255 * showFactor.get())))
             .build()
-        rectangle.render(matrix, x, y)
+        blur.render(matrix, x, y)
         val border = Builder.border()
-            .size(rectangle.size)
+            .size(blur.size)
             .color(QuadColorState(fromRGB(255, 255, 255, 25 * showFactor.get())))
-            .radius(rectangle.radius)
+            .radius(blur.radius)
             .thickness(0.2f)
             .build()
         border.render(matrix, x, y, 1f)

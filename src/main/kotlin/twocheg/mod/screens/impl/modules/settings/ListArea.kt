@@ -3,25 +3,34 @@ package twocheg.mod.screens.impl.modules.settings
 import net.minecraft.client.gui.DrawContext
 import org.joml.Matrix4f
 import org.lwjgl.glfw.GLFW
+import twocheg.mod.bikoFont
+import twocheg.mod.builders.Builder
+import twocheg.mod.renderers.impl.BuiltText
 import twocheg.mod.screens.impl.RenderArea
+import twocheg.mod.screens.impl.SelectionArea
 import twocheg.mod.screens.impl.ValueArea
 import twocheg.mod.settings.Setting
 import twocheg.mod.utils.math.Delta
+import twocheg.mod.utils.math.fromRGB
+import twocheg.mod.utils.math.splitText
 
 class ListArea (
     override val parentArea: RenderArea,
     listSet: Setting<*>
 ) : SettingArea<Setting<*>>(parentArea, listSet) {
     init {
+        @Suppress("CAST_NEVER_SUCCEEDS")
         for (option in listSet.getOptions()!!) {
             areas.add(ValueArea(
                 this, option,
-                listSet::setValue,
-                listSet::getValue,
+                listSet::setAny,
+                { listSet.value },
                 option.toString()
             ))
         }
     }
+
+    val selection = SelectionArea(this, { getValueArea(listSet.value) })
 
     var expanded = false
     val expandedFactor = Delta({ expanded })
@@ -36,14 +45,48 @@ class ListArea (
         mouseX: Double,
         mouseY: Double
     ) {
-        // TODO
-        super.render(context, matrix, x, y, width, height, mouseX, mouseY)
+        val lines = splitText(
+            setting.name,
+            width!!
+        ) { text -> bikoFont.get().getWidth(text, 14f) }
+        var renderY = y
+        for (line in lines) {
+            val text: BuiltText = Builder.text()
+                .font(bikoFont.get())
+                .text(line)
+                .color(fromRGB(255, 255, 255, 200 * showFactor.get()))
+                .size(14f)
+                .thickness(0.05f)
+                .build()
+            text.render(matrix, x, renderY, zIndex)
+            renderY += text.size + 2f
+        }
+        renderY += 2f
+
+        selection.render(context, matrix, 0f, 0f, null, null, mouseX, mouseY)
+
+        var renderX = x
+        for (area in areas) {
+            if (renderX - x + area.width > width) {
+                renderY += area.height + PADDING
+                renderX = x
+            }
+            area.render(context, matrix, renderX, renderY, null, null, mouseX, mouseY)
+            renderX += area.width + PADDING
+        }
+        renderY += areas.last().height
+
+        super.render(context, matrix, x, y, width, renderY - y, mouseX, mouseY)
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
         if (button == GLFW.GLFW_MOUSE_BUTTON_RIGHT && isHovered(mouseX, mouseY)) {
             expanded = !expanded
+            return true
         }
-        return super.mouseClicked(mouseX, mouseY, button)
+        if (expanded) {
+            return super.mouseClicked(mouseX, mouseY, button)
+        }
+        return false
     }
 }

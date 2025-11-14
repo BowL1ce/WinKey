@@ -17,7 +17,7 @@ class Example : Parent("example", Categories.example) {
     var header2: Header = Header("настойки типо")
     var list2: Setting<String> = Setting(
         "list", "1",
-        options =  listOf("1", "2", "3")
+        options = listOf("1", "2", "3")
     )
     var group: Group = Group(
         "group/category",
@@ -25,5 +25,5 @@ class Example : Parent("example", Categories.example) {
     )
 
     var visible: Setting<Boolean> = Setting("visible", false)
-    var header3: Header = Header("ты видишь меня", visibility = {m -> visible.getValue()})
+    var header3: Header = Header("ты видишь меня", visibility = {m -> visible.value})
 }

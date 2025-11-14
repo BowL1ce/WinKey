@@ -23,7 +23,7 @@ class BooleanArea(
         const val BTH_HEIGHT = 14f
     }
 
-    val enableFactor = Delta({ setting.getValue() })
+    val enableFactor = Delta({ setting.value })
 
     override fun render(
         context: DrawContext,
@@ -40,7 +40,7 @@ class BooleanArea(
         val lines = splitText(
             setting.name,
             width!! - BTN_WIDTH - PADDING
-        ) { text -> bikoFont.getWidth(text, 14f) * BuiltText.widthFactor }
+        ) { text -> bikoFont.getWidth(text, 14f) }
         var renderY = y
         for (line in lines) {
             val text: BuiltText = Builder.text()
@@ -78,7 +78,7 @@ class BooleanArea(
     }
 
     override fun mouseClicked(mouseX: Double, mouseY: Double, button: Int): Boolean {
-        if (isHovered(mouseX, mouseY)) setting.setValue(!setting.getValue())
+        if (isHovered(mouseX, mouseY)) setting.value = !setting.value
         return super.mouseClicked(mouseX, mouseY, button)
     }
 }

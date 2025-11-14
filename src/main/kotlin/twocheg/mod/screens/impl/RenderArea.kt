@@ -20,7 +20,6 @@ abstract class RenderArea(
     var y = 0f
     var width = 0f
     var height = 0f
-    var totalHeight = 0f // не учитывая все анимации
 
     var show = true
     internal var showFactor: Delta

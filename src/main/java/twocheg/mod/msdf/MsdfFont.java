@@ -56,28 +56,28 @@ public final class MsdfFont {
 			prevChar = _char;
 		}
 	}
-	
-	public float getWidth(String text, float size) {
-		int prevChar = -1;
-		float width = 0.0f;
-		for (int i = 0; i < text.length(); i++) {
-			int _char = (int) text.charAt(i);
-			MsdfGlyph glyph = this.glyphs.get(_char);
-			
-			if (glyph == null)
-				continue;
-			
-			Map<Integer, Float> kerning = this.kernings.get(prevChar);
-			if (kerning != null) {
-				width += kerning.getOrDefault(_char, 0.0f) * size;
-			}
-			
-			width += glyph.getWidth(size);
-			prevChar = _char;
-		}
-		
-		return width;
-	}
+
+    public float getWidth(String text, float size) {
+        int prevChar = -1;
+        float width = 0.0f;
+        for (int i = 0; i < text.length(); i++) {
+            int _char = text.charAt(i);
+            MsdfGlyph glyph = this.glyphs.get(_char);
+
+            if (glyph == null)
+                continue;
+
+            Map<Integer, Float> kerning = this.kernings.get(prevChar);
+            if (kerning != null) {
+                width += kerning.getOrDefault(_char, 0.0f) * size;
+            }
+
+            width += glyph.getWidth(size);
+            prevChar = _char;
+        }
+
+        return width * 176 / 165; // если у вас есть вопрос, что за 176 / 165, подавите желание получить на него ответ
+    }
 	
 	public String getName() {
 		return this.name;

@@ -52,7 +52,7 @@ class CategoryArea(
     ) {
         this.y = y - 100 * (1 - showFactor.get())
 
-        val text: BuiltText = Builder.text()
+        val text = Builder.text()
             .font(bikoFont.get())
             .text(category.name)
             .color(fromRGB(255, 255, 255, 200 * showFactor.get()))
@@ -65,7 +65,7 @@ class CategoryArea(
             .radius(QuadRadiusState(8f))
             .build()
 
-        val blur: BuiltBlur = Builder.blur()
+        val blur = Builder.blur()
             .size(SizeState(width!!, targetHeight.get()))
             .radius(QuadRadiusState(10f))
             .blurRadius(12f)
@@ -126,11 +126,11 @@ class CategoryArea(
                 if (!(area as ModuleArea).module.name.startsWith(q)) continue
             }
             area.render(context, matrix, x + PADDING, renderY, width - PADDING * 2f, MODULE_HEIGHT, mouseX, mouseY)
-            renderY += area.totalHeight + MODULE_PADDING
+            renderY += area.height + MODULE_PADDING
         }
 
-        if (targetHeight.get() == 0f) targetHeight.forceSet(renderY - this.y)
-        targetHeight.set(renderY - this.y)
+        if (targetHeight.target == 0f) { targetHeight.forceSet(renderY - y) }
+        targetHeight.set(renderY - y)
 
         super.render(context, matrix, x, this.y, width, targetHeight.get(), mouseX, mouseY)
     }

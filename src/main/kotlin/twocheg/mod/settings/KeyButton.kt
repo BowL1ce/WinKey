@@ -15,7 +15,7 @@ class KeyButton(
 
     @EventHandler
     fun onKey(e: EventKeyPress) {
-        if (e.keyCode == getValue())
-        onClick(this)
+        if (e.keyCode == value)
+            onClick(this)
     }
 }
