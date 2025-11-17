@@ -33,6 +33,8 @@ abstract class Parent(
         set(e) {
             config["enable"] = e
             field = e
+            if (field) onEnable()
+            else onDisable()
         }
     override var keybind: Int = config["keybind", defaultKeyBind]
         set(k) {
@@ -47,7 +49,6 @@ abstract class Parent(
      override fun toggle() {
         enable = !enable
         onToggle()
-        if (enable) onEnable() else onDisable()
     }
 
     fun resetToDefault() {

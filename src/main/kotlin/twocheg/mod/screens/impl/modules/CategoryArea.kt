@@ -121,7 +121,7 @@ class CategoryArea(
         for (area in areas) {
             if (gui.selectScreens.isSearch) {
                 val q = (gui.selectScreens.areas.last() as ModuleSearchArea).q
-                if (!(area as ModuleArea).module.name.startsWith(q)) continue
+                if (!(area as ModuleArea).module.name.lowercase().startsWith(q.lowercase())) continue
             }
             area.render(context, matrix, x + PADDING, renderY, width - PADDING * 2f, MODULE_HEIGHT, mouseX, mouseY)
             renderY += area.height + MODULE_PADDING

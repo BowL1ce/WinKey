@@ -10,7 +10,7 @@ data class MyGroup(
 ) : SettingGroup("my group") // имя по желанию, если не указывать будет использоваться название класса
 
 class Example : Parent(
-    name = "Example",
+    name = "example",
     description = "example module",
     category = Categories.example,
     enabledByDefault = false,

@@ -23,8 +23,9 @@ open class ScreenBase(open val name: String) : Screen(Text.literal(name)) {
 
     val gui = ModuleManager.get(ClickGui::class.java)!!
 
-    val open: Boolean
+    var open: Boolean
         get() = gui.enable
+        set(e) { gui.enable = e }
     val openFactor
         get() = gui.openFactor
 
@@ -72,8 +73,8 @@ open class ScreenBase(open val name: String) : Screen(Text.literal(name)) {
         for (area in areas) {
             if (area.keyPressed(keyCode, scanCode, modifiers)) return true
         }
-        if (gui.openFactor.get() == 1f && (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == gui.keybind)) {
-            gui.enable = false
+        if (openFactor.get() > 0.1 && (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == gui.keybind)) {
+            open = false
             return true
         }
         return super.keyPressed(keyCode, scanCode, modifiers)

@@ -32,9 +32,7 @@ object ModuleManager {
 
     fun init() {
         EVENT_BUS.subscribe(this)
-        println(modules)
         modules.forEach {
-            println(it)
             it.init()
             EVENT_BUS.subscribe(it)
         }

@@ -23,7 +23,7 @@ class ClickGui : Parent(
 
     override var keybind: Int = config["keybind", defaultKeyBind]
         set(k) {
-            if (k != -1) {
+            if (k != -1) { // ему нельзя удалить клавишу
                 config["keybind"] = k
                 field = k
             }
@@ -45,7 +45,7 @@ class ClickGui : Parent(
     }
 
     override fun onEnable() {
-        println(openFactor.get())
+        openFactor.reset() // я не знаю, дельта накапливает значение до 1 и ему арифметически и кристально поебать, потом исправлю, когда будет не похуй (никогда)
         if (categories.isEmpty()) {
             for ((category, moduleList) in ModuleManager.byCategory) {
                 categories.add(CategoryArea(category, moduleList))

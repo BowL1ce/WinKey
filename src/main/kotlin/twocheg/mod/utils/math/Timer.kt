@@ -39,4 +39,15 @@ class Timer {
 
     val timeMs: Long
         get() = getMs(System.nanoTime() - time)
+
+    fun updateDeltaMs(): Float {
+        val now = System.nanoTime()
+        val deltaNs = now - this.time
+        this.time = now
+        return deltaNs / 1_000_000f
+    }
+
+    fun updateDeltaSec(): Float {
+        return updateDeltaMs() / 1000f
+    }
 }

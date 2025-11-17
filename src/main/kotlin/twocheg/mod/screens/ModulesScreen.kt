@@ -32,8 +32,8 @@ class ModulesScreen() : ScreenBase("modules") {
     }
 
     override fun render(context: DrawContext, mouseX: Int, mouseY: Int, delta: Float) {
-        if (mc.world == null) renderPanoramaBackground(context, delta) // вот эта вот хуйня спасает весь интерфейс если он открыт в главном меню, не убирайте это, пожалуйста, никто
-        // если вкратце походу буфер не отчищается, и это просто рендерится поверх всего предыдущего мусора, закрывая его
+        if (mc.world == null) renderPanoramaBackground(context, delta) // вот это для рендера в главном меню обязатльно\
+        // оно закрывает весь предыдущий мусор который почемуто не отчишается
 
         context.matrices.push()
         context.matrices.loadIdentity()
