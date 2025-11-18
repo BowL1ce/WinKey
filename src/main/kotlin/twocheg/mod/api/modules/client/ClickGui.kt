@@ -23,6 +23,10 @@ class ClickGui : Parent(
 ) {
     val openFactor = Delta(this::enable)
 
+    init {
+        factoryArea = FactoryArea(factory, openFactor)
+    }
+
     override var keybind: Int = config["keybind", defaultKeyBind]
         set(k) {
             if (k != -1) { // ему нельзя удалить клавишу
@@ -48,18 +52,18 @@ class ClickGui : Parent(
         for ((category, moduleList) in ModuleManager.byCategory) {
             categories.add(CategoryArea(category to moduleList, 0f))
         }
-        factoryArea.changeShowDelta(openFactor)
         super.init()
     }
 
     companion object Components {
         val categories = mutableListOf<CategoryArea>()
 
+        lateinit var factoryArea: FactoryArea
+
         val factory = ScreensFactory(
             ModulesScreen::class.java,
             ConfigsScreen::class.java
         )
-        val factoryArea = FactoryArea(factory)
 
         fun reset() {
             categories.forEach {

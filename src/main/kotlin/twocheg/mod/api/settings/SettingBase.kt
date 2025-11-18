@@ -11,11 +11,12 @@ abstract class SettingBase<T>(
     var visibility: () -> Boolean = { true }
 
     private lateinit var config: ConfigManager
-    private var _value: T = default
 
-    override var value: T
-        get() = if (::config.isInitialized) get() else _value
-        set(v) = set(v)
+    override var value: T = default
+        set(v) {
+            config[name] = v
+            field = v
+        }
 
     override operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
         return value
@@ -30,19 +31,16 @@ abstract class SettingBase<T>(
     }
 
     override fun get(): T {
-        check(::config.isInitialized) { "ConfigManager not initialized. Call init() first." }
-        return config[name, default]
+        return value
     }
 
-    override fun set(v: T) {
-        _value = v
-        if (::config.isInitialized) {
-            config[name] = v
-        }
+    override fun set(value: T) {
+        this.value = value
     }
 
     override fun init(config: ConfigManager) {
+        // да, согласен, немного кончено, но мне похуй
         this.config = config.sub(name)
-        _value = this.config[name, default]
+        value = this.config[name, default]
     }
 }

@@ -25,15 +25,14 @@ open class ScreenBase(open val name: String) : Screen(Text.literal(name)) {
     }
 
     open val closeIf: Boolean
-        get() = !open && openFactor.get() == 0f
+        get() = !open && openFactor == 0f
 
     val gui = ModuleManager.get(ClickGui::class.java)!!
 
-    var open: Boolean
+    var open
         get() = gui.enable
         set(e) { gui.enable = e }
-    val openFactor
-        get() = gui.openFactor
+    val openFactor by gui.openFactor
 
     val children = mutableListOf<RenderArea>()
 
@@ -49,7 +48,7 @@ open class ScreenBase(open val name: String) : Screen(Text.literal(name)) {
 
         val matrices = context.matrices.peek().getPositionMatrix()
 
-        val bgColorTop = fromRGB(0, 0, 0, 80 * gui.openFactor.get())
+        val bgColorTop = fromRGB(0, 0, 0, 80 * openFactor)
         val bgColorBottom = fromRGB(0, 0, 0, 0)
 
         Builder.rectangle()
@@ -79,7 +78,7 @@ open class ScreenBase(open val name: String) : Screen(Text.literal(name)) {
         for (area in children) {
             if (area.keyPressed(keyCode, scanCode, modifiers)) return true
         }
-        if (openFactor.get() > 0.1 && (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == gui.keybind)) {
+        if (openFactor > 0.1 && (keyCode == GLFW.GLFW_KEY_ESCAPE || keyCode == gui.keybind)) {
             open = false
             return true
         }

@@ -10,13 +10,14 @@ import twocheg.mod.builders.states.QuadColorState
 import twocheg.mod.builders.states.QuadRadiusState
 import twocheg.mod.builders.states.SizeState
 import twocheg.mod.utils.math.ColorUtils.fromRGB
+import twocheg.mod.utils.math.Delta
 import twocheg.mod.utils.math.Spring
 
 class CategoryArea(
     val data: Pair<Categories, List<Module>>,
-    width: Float
+    width: Float,
 ) : VerticalContainerArea(width) {
-    val targetHeight = Spring(0f)
+    var targetHeight by Spring(0f)
 
     override fun render(
         context: DrawContext,
@@ -27,7 +28,7 @@ class CategoryArea(
         val y = y - 100 * (1 - showFactor)
 
         val blur = Builder.blur()
-            .size(SizeState(width, targetHeight.get()))
+            .size(SizeState(width, targetHeight))
             .radius(QuadRadiusState(10f))
             .blurRadius(12f)
             .color(
@@ -53,7 +54,6 @@ class CategoryArea(
 
     override fun recalculateLayout(availableWidth: Float, availableHeight: Float) {
         height = 100f
-        if (targetHeight.get() == 0f) targetHeight.forceSet(height)
-        else targetHeight.set(height)
+        targetHeight = height
     }
 }

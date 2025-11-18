@@ -3,6 +3,8 @@
 package twocheg.mod.utils.math
 
 import kotlin.math.*
+import kotlin.properties.ReadWriteProperty
+import kotlin.reflect.KProperty
 
 data class EasingCurve(
     val name: String? = null,
@@ -66,7 +68,7 @@ class Delta(
     private val direction: () -> Boolean,
     private val durationMs: Float = 400f,
     private val curve: EasingCurve = EasingCurve.EaseInOut
-) {
+) : ReadWriteProperty<Any?, Float> {
     private val timer = Timer()
     private var virtualTimeMs: Float = 0f
 
@@ -79,12 +81,12 @@ class Delta(
         timer.reset()
     }
 
-    fun setProgress(progress: Float) {
-        virtualTimeMs = (progress.coerceIn(0f, 1f) * durationMs)
+    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) {
+        virtualTimeMs = (value.coerceIn(0f, 1f) * durationMs)
         timer.reset()
     }
 
-    fun get(): Float {
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>): Float {
         val deltaMs = timer.updateDeltaMs()
 
         val targetTime = if (direction()) durationMs else 0f
@@ -104,7 +106,7 @@ class Pulse(
     val direct: () -> Boolean,
     val durationMs: Long = 800,
     val parentFactor: () -> Float = { 1f }
-) {
+) : ReadWriteProperty<Any?, Float> {
     private val timer = Timer()
     private var accumulatedTime: Float = 0f
     private var targetDirection: Boolean = true
@@ -119,7 +121,12 @@ class Pulse(
         targetDirection = direct()
     }
 
-    fun get(): Float {
+    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) {
+        accumulatedTime = (value.coerceIn(0f, 1f) * durationMs)
+        timer.reset()
+    }
+
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>): Float {
         val deltaMs = timer.updateDeltaMs()
         val desiredDirection = direct()
 
@@ -159,21 +166,14 @@ class Spring(
     initialValue: Float,
     private val stiffness: Float = 300f,
     private val damping: Float = 25f,
-    private val mass: Float = 1f
-) {
+    private val mass: Float = 1f,
+    private val zeroSafe: Boolean = true
+) : ReadWriteProperty<Any?, Float> {
     var current: Float = initialValue; private set
     var target: Float = initialValue; private set
 
     private var velocity: Float = 0f
     private val timer = Timer()
-
-    init {
-        forceSet(initialValue)
-    }
-
-    fun set(newTarget: Float) {
-        target = newTarget
-    }
 
     fun forceSet(value: Float) {
         target = value
@@ -182,7 +182,12 @@ class Spring(
         timer.reset()
     }
 
-    fun get(): Float {
+    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) {
+        if (target == 0f && zeroSafe) forceSet(value)
+        else  target = value
+    }
+
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>): Float {
         val dt = timer.updateDeltaSec()
         if (dt <= 0f) return current
 
@@ -202,25 +207,4 @@ class Spring(
 
         return current
     }
-}
-
-class Hybrid(
-    initialValue: Float,
-    durationMs: Float = 200f,
-) {
-    private val spring = Spring(initialValue, 300f, 25f)
-    private val minDurationNs = (durationMs * 1e6f).toLong()
-    private var lastSetTime = 0L
-
-    fun set(newTarget: Float) {
-        val now = System.nanoTime()
-        if (now - lastSetTime > minDurationNs) {
-            spring.forceSet(spring.current)
-        }
-        spring.set(newTarget)
-        lastSetTime = now
-    }
-
-    fun get(): Float = spring.get()
-    fun forceSet(v: Float) = spring.forceSet(v)
 }

@@ -12,13 +12,10 @@ class ValueArea<T>(
     val value: T,
     val valueName: String,
     val onSet: (T) -> Unit,
-    val current: () -> T
-) : ContainerArea() {
-    private val _highlighting = Delta({ value == current() })
-
-    var highlighting: Float
-        get() = _highlighting.get()
-        set(value) = _highlighting.setProgress(value)
+    val current: () -> T,
+    showDelta: Delta? = null
+) : ContainerArea(showDelta = showDelta) {
+   val highlighting by Delta({ value == current() })
 
     val fontSize = 14f
 

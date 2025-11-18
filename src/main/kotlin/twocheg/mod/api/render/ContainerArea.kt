@@ -9,14 +9,15 @@ abstract class ContainerArea(
     override var y: Float = 0f,
     override var width: Float = 0f,
     override var height: Float = 0f,
-    override var parent: RenderArea? = null
+    override var parent: RenderArea? = null,
+    val showDelta: Delta? = null // вот это просто пиздец
 ) : RenderArea {
     override var show: Boolean = true
 
-    private var _showFactor = Delta(this::show)
+    private var _showFactor by (showDelta ?: Delta(this::show))
     override var showFactor: Float
-        get() = _showFactor.get() * (parent?.showFactor ?: 1f)
-        set(value) = _showFactor.setProgress(value)
+        get() = _showFactor * (parent?.showFactor ?: 1f)
+        set(value) { _showFactor = value }
 
     protected val children = mutableListOf<RenderArea>()
 
@@ -82,12 +83,6 @@ abstract class ContainerArea(
         }
         return null
     }
-
-    fun changeShowDelta(newDelta: Delta) {
-        _showFactor = newDelta
-    }
-
-    fun getShowDelta() = _showFactor
 
     companion object {
         val mc: MinecraftClient = MinecraftClient.getInstance()

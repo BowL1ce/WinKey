@@ -9,7 +9,8 @@ import twocheg.mod.api.settings.SettingGroup
 data class MyGroup(
     val bool: BooleanSetting,
     val list: ListSettings<Int>
-) : SettingGroup("my group") // имя по желанию, если не указывать будет использоваться название класса
+) : SettingGroup("my group") { // имя по желанию, если не указывать будет использоваться название класса
+}
 
 class Example : Parent(
     name = "example",
@@ -26,8 +27,11 @@ class Example : Parent(
         BooleanSetting("boolean 2", true),
         ListSettings("list 2", 1, 2, 3)
     )
+    // прото так делегирование в группах не работает
+    // если очень хочется, делайте так
+    val groupBool by group.bool
 
     fun test() {
-        println(group.bool.value)
+        println(groupBool)
     }
 }

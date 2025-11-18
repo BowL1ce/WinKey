@@ -19,11 +19,11 @@ class ConfigsScreen() : ScreenBase("configs") {
         val text: BuiltText = Builder.text()
             .font(bikoFont())
             .text("SOON...")
-            .color(fromRGB(255, 255, 255, (255 * openFactor.get()).toInt()))
+            .color(fromRGB(255, 255, 255, (255 * openFactor).toInt()))
             .size(20f)
             .thickness(0.05f)
             .build()
-        text.render(matrix, width / 2 - text.getWidth() / 2, (height / 2 - text.size) - 50 * (1 - openFactor.get()), 2f)
+        text.render(matrix, width / 2 - text.getWidth() / 2, (height / 2 - text.size) - 50 * (1 - openFactor), 2f)
 
         context.matrices.pop()
 
