@@ -50,7 +50,6 @@ class SelectionArea() : ContainerArea() {
 
     override fun recalculateLayout(availableWidth: Float, availableHeight: Float) {
         val targetArea = targetArea()
-        println(targetArea)
         if (targetArea != null) {
             x = targetArea.x
             y = targetArea.y

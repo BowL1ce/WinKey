@@ -30,8 +30,10 @@ class Example : Parent(
     // прото так делегирование в группах не работает
     // если очень хочется, делайте так
     val groupBool by group.bool
+    // group.bool.value - без делегирования
 
     fun test() {
         println(groupBool)
+
     }
 }

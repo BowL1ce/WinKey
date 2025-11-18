@@ -10,25 +10,19 @@ import twocheg.mod.builders.states.QuadRadiusState
 import twocheg.mod.builders.states.SizeState
 import twocheg.mod.ui.ScreensFactory
 import twocheg.mod.utils.math.ColorUtils.fromRGB
-import twocheg.mod.utils.math.Delta
 
 
 class FactoryArea(
-    val factory: ScreensFactory<*>,
-    showDelta: Delta
-) : HorizontalContainerArea(0f, null, showDelta) {
+    val factory: ScreensFactory<*>
+) : HorizontalContainerArea(0f) {
     init {
         @Suppress("MUTABLE_PROPERTY_WITH_CAPTURED_TYPE")
         for (screen in factory.classList) {
-            children.add(
-                ValueArea<Class<out Screen>>(
-                    screen, screen.simpleName.trim(),
-                    factory::setAny,
-                    factory::currentClass
-                ).apply {
-                    parent = this@FactoryArea
-                }
-            )
+            addChild(ValueArea<Class<out Screen>>(
+                screen, screen.simpleName.trim(),
+                factory::setAny,
+                factory::currentClass
+            ))
         }
     }
 

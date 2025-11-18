@@ -10,14 +10,13 @@ abstract class ContainerArea(
     override var width: Float = 0f,
     override var height: Float = 0f,
     override var parent: RenderArea? = null,
-    val showDelta: Delta? = null // вот это просто пиздец
 ) : RenderArea {
     override var show: Boolean = true
 
-    private var _showFactor by (showDelta ?: Delta(this::show))
+    private var _showFactor = Delta(this::show)
     override var showFactor: Float
-        get() = _showFactor * (parent?.showFactor ?: 1f)
-        set(value) { _showFactor = value }
+        get() = _showFactor.get() * (parent?.showFactor ?: 1f)
+        set(value) { _showFactor.set(value) }
 
     protected val children = mutableListOf<RenderArea>()
 
@@ -36,8 +35,27 @@ abstract class ContainerArea(
         children.clear()
     }
 
+    inline fun <reified T : RenderArea> findChild(children: List<RenderArea>): T? {
+        for (area in children) {
+            if (area is T) return area
+        }
+        return null
+    }
+
+    fun <T> findChild(value: T): ValueArea<T>? {
+        for (child in this.children) {
+            if (child is ValueArea<*>) {
+                if (child.value == value) {
+                    return child as ValueArea<T>
+                }
+            }
+        }
+        return null
+    }
+
     override fun recalculateLayout(availableWidth: Float, availableHeight: Float) {
-        // ну так-то оно не нужно
+        // при сталине такой хуйни не было
+        // раньше без этого как то справлялись, прям в функции рендера ебашили все что можно и норм
     }
 
     protected inline fun propagateToChildrenReversed(block: RenderArea.() -> Boolean): Boolean {
@@ -65,23 +83,10 @@ abstract class ContainerArea(
     override fun charTyped(chr: Char, modifiers: Int) =
         propagateToChildrenReversed { charTyped(chr, modifiers) }
 
-    inline fun <reified T : RenderArea> findChild(children: List<RenderArea>): T? {
-        for (area in children) {
-            if (area is T) return area
-        }
-        return null
-    }
+    fun getShowDelta() = _showFactor
 
-    fun <T> findChild(value: T): ValueArea<T>? {
-        for (area in children) {
-            if (area is ValueArea<*>) {
-                @Suppress("UNCHECKED_CAST")
-                if (area.value == value) {
-                    return area as ValueArea<T>
-                }
-            }
-        }
-        return null
+    fun setShowDelta(delta: Delta) {
+        _showFactor = delta
     }
 
     companion object {

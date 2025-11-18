@@ -24,7 +24,7 @@ class ClickGui : Parent(
     val openFactor = Delta(this::enable)
 
     init {
-        factoryArea = FactoryArea(factory, openFactor)
+        factoryArea.setShowDelta(openFactor)
     }
 
     override var keybind: Int = config["keybind", defaultKeyBind]
@@ -58,12 +58,12 @@ class ClickGui : Parent(
     companion object Components {
         val categories = mutableListOf<CategoryArea>()
 
-        lateinit var factoryArea: FactoryArea
-
         val factory = ScreensFactory(
             ModulesScreen::class.java,
             ConfigsScreen::class.java
         )
+
+        var factoryArea = FactoryArea(factory)
 
         fun reset() {
             categories.forEach {

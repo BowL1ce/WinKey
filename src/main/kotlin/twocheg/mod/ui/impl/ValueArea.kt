@@ -6,6 +6,7 @@ import twocheg.mod.api.render.ContainerArea
 import twocheg.mod.bikoFont
 import twocheg.mod.builders.Builder
 import twocheg.mod.utils.math.ColorUtils.fromRGB
+import twocheg.mod.utils.math.DDelta
 import twocheg.mod.utils.math.Delta
 
 class ValueArea<T>(
@@ -13,9 +14,8 @@ class ValueArea<T>(
     val valueName: String,
     val onSet: (T) -> Unit,
     val current: () -> T,
-    showDelta: Delta? = null
-) : ContainerArea(showDelta = showDelta) {
-   val highlighting by Delta({ value == current() })
+) : ContainerArea() {
+   val highlighting by DDelta({ value == current() })
 
     val fontSize = 14f
 

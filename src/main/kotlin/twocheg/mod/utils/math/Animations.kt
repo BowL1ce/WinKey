@@ -64,11 +64,11 @@ private fun cubicBezierInterpolate(t: Float, x1: Float, y1: Float, x2: Float, y3
     return ((ay * t0 + by) * t0 + cy) * t0
 }
 
-class Delta(
-    private val direction: () -> Boolean,
-    private val durationMs: Float = 400f,
-    private val curve: EasingCurve = EasingCurve.EaseInOut
-) : ReadWriteProperty<Any?, Float> {
+open class Delta(
+    open val direction: () -> Boolean,
+    open val durationMs: Float = 400f,
+    open val curve: EasingCurve = EasingCurve.EaseInOut
+) {
     private val timer = Timer()
     private var virtualTimeMs: Float = 0f
 
@@ -81,12 +81,12 @@ class Delta(
         timer.reset()
     }
 
-    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) {
+    fun set(value: Float) {
         virtualTimeMs = (value.coerceIn(0f, 1f) * durationMs)
         timer.reset()
     }
 
-    override operator fun getValue(thisRef: Any?, property: KProperty<*>): Float {
+    fun get(): Float {
         val deltaMs = timer.updateDeltaMs()
 
         val targetTime = if (direction()) durationMs else 0f
@@ -100,6 +100,20 @@ class Delta(
         val t = (virtualTimeMs / durationMs).coerceIn(0f, 1f)
         return curve.interpolate(t)
     }
+}
+
+/**
+ * - Delegate Delta
+ * - дельта но с делегированием (var factor by DDelta(this::direct))
+ */
+class DDelta(
+    override val direction: () -> Boolean,
+    override val durationMs: Float = 400f,
+    override val curve: EasingCurve = EasingCurve.EaseInOut
+) : Delta(direction, durationMs, curve), ReadWriteProperty<Any?, Float> {
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>) = get()
+
+    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) = set(value)
 }
 
 class Pulse(
