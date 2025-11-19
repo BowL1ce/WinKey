@@ -68,9 +68,13 @@ open class Delta(
     open val direction: () -> Boolean,
     open val durationMs: Float = 400f,
     open val curve: EasingCurve = EasingCurve.EaseInOut
-) {
+) : ReadWriteProperty<Any?, Float>{
     private val timer = Timer()
     private var virtualTimeMs: Float = 0f
+
+    override operator fun getValue(thisRef: Any?, property: KProperty<*>) = get()
+
+    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) = set(value)
 
     init {
         reset()
@@ -100,20 +104,6 @@ open class Delta(
         val t = (virtualTimeMs / durationMs).coerceIn(0f, 1f)
         return curve.interpolate(t)
     }
-}
-
-/**
- * - Delegate Delta
- * - дельта но с делегированием (var factor by DDelta(this::direct))
- */
-class DDelta(
-    override val direction: () -> Boolean,
-    override val durationMs: Float = 400f,
-    override val curve: EasingCurve = EasingCurve.EaseInOut
-) : Delta(direction, durationMs, curve), ReadWriteProperty<Any?, Float> {
-    override operator fun getValue(thisRef: Any?, property: KProperty<*>) = get()
-
-    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) = set(value)
 }
 
 class Pulse(
@@ -189,6 +179,10 @@ class Spring(
     private var velocity: Float = 0f
     private val timer = Timer()
 
+    override fun getValue(thisRef: Any?, property: KProperty<*>) = get()
+
+    override fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) = set(value)
+
     fun forceSet(value: Float) {
         target = value
         current = value
@@ -196,12 +190,12 @@ class Spring(
         timer.reset()
     }
 
-    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: Float) {
+    fun set(value: Float) {
         if (target == 0f && zeroSafe) forceSet(value)
         else  target = value
     }
 
-    override operator fun getValue(thisRef: Any?, property: KProperty<*>): Float {
+    fun get(): Float {
         val dt = timer.updateDeltaSec()
         if (dt <= 0f) return current
 

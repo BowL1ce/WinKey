@@ -26,7 +26,9 @@ class FactoryArea(
         }
     }
 
-    val selection = SelectionArea()
+    val selection = SelectionArea().apply {
+        parent = this@FactoryArea
+    }
 
     override fun render(
         context: DrawContext,
@@ -54,7 +56,7 @@ class FactoryArea(
             .render(matrices, x, y)
 
         selection.apply {
-            targetArea = { findChild(factory.currentClass) }
+            targetArea = { this@FactoryArea.findChild(factory.currentClass) }
             recalculateLayout(0f, 0f)
             render(context, matrices, mouseX, mouseY)
         }

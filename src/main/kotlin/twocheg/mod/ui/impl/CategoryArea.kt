@@ -14,9 +14,8 @@ import twocheg.mod.utils.math.Delta
 import twocheg.mod.utils.math.Spring
 
 class CategoryArea(
-    val data: Pair<Categories, List<Module>>,
-    width: Float,
-) : VerticalContainerArea(width) {
+    val data: Pair<Categories, List<Module>>
+) : VerticalContainerArea(0f) {
     var targetHeight by Spring(0f)
 
     override fun render(

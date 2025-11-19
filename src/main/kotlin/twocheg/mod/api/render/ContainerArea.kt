@@ -21,33 +21,28 @@ abstract class ContainerArea(
     protected val children = mutableListOf<RenderArea>()
 
     fun addChild(child: RenderArea) {
-        children += child
         child.parent = this
+        children.add(child)
     }
 
-    fun removeChild(child: RenderArea) {
-        children -= child
-        child.parent = null
-    }
+    fun removeChild(child: RenderArea) = children.remove(child)
 
     fun clearChildren() {
-        children.forEach { it.parent = null }
         children.clear()
     }
 
-    inline fun <reified T : RenderArea> findChild(children: List<RenderArea>): T? {
-        for (area in children) {
-            if (area is T) return area
-        }
-        return null
-    }
+//    inline fun <reified T : RenderArea> findChild(children: List<RenderArea>): T? {
+//        for (area in children) {
+//            if (area is T) return area
+//        }
+//        return null
+//    }
 
+    @Suppress("UNCHECKED_CAST")
     fun <T> findChild(value: T): ValueArea<T>? {
         for (child in this.children) {
             if (child is ValueArea<*>) {
-                if (child.value == value) {
-                    return child as ValueArea<T>
-                }
+                if (child.value == value) return child as ValueArea<T>
             }
         }
         return null
@@ -56,6 +51,8 @@ abstract class ContainerArea(
     override fun recalculateLayout(availableWidth: Float, availableHeight: Float) {
         // при сталине такой хуйни не было
         // раньше без этого как то справлялись, прям в функции рендера ебашили все что можно и норм
+        width = availableWidth
+        height = availableHeight
     }
 
     protected inline fun propagateToChildrenReversed(block: RenderArea.() -> Boolean): Boolean {

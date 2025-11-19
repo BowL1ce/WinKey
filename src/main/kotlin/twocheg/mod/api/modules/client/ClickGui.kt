@@ -50,7 +50,7 @@ class ClickGui : Parent(
 
     override fun init() {
         for ((category, moduleList) in ModuleManager.byCategory) {
-            categories.add(CategoryArea(category to moduleList, 0f))
+            categories.add(CategoryArea(category to moduleList))
         }
         super.init()
     }
