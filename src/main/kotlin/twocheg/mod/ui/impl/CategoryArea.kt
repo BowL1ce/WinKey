@@ -5,13 +5,12 @@ import org.joml.Matrix4f
 import twocheg.mod.Categories
 import twocheg.mod.api.modules.Module
 import twocheg.mod.api.render.VerticalContainerArea
-import twocheg.mod.builders.Builder
-import twocheg.mod.builders.states.QuadColorState
-import twocheg.mod.builders.states.QuadRadiusState
-import twocheg.mod.builders.states.SizeState
 import twocheg.mod.utils.math.ColorUtils.fromRGB
-import twocheg.mod.utils.math.Delta
 import twocheg.mod.utils.math.Spring
+
+import dev.hikarian.renderer.Renderer
+import dev.hikarian.renderer.math.*
+import dev.hikarian.renderer.shapes.*
 
 class CategoryArea(
     val data: Pair<Categories, List<Module>>
@@ -26,29 +25,25 @@ class CategoryArea(
     ) {
         val y = y - 100 * (1 - showFactor)
 
-        val blur = Builder.blur()
-            .size(SizeState(width, targetHeight))
-            .radius(QuadRadiusState(10f))
-            .blurRadius(12f)
-            .color(
-                QuadColorState(
-                    fromRGB(110, 110, 110, 255 * showFactor)
-                )
-            )
-            .build()
-        blur.render(matrices, this.x, y)
+        Renderer.roundedRect(
+            x = x,
+            y = y,
+            width = width,
+            height = targetHeight,
+            radius = 10f,
+            color = fromRGB(110, 110, 110, 255f * showFactor),
+            blur = BlurEffect(radius = 12f)
+        )
 
-        Builder.border()
-            .size(blur.size)
-            .color(
-                QuadColorState(
-                    fromRGB(255, 255, 255, 25 * showFactor)
-                )
-            )
-            .thickness(0.2f)
-            .radius(blur.radius)
-            .build()
-            .render(matrices, this.x, y)
+        Renderer.roundedRectOutline(
+            x = x,
+            y = y,
+            width = width,
+            height = targetHeight,
+            radius = 10f,
+            color = fromRGB(255, 255, 255, 25f * showFactor),
+            thickness = 0.2f
+        )
     }
 
     override fun recalculateLayout(availableWidth: Float, availableHeight: Float) {

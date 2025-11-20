@@ -4,7 +4,7 @@
 <div align="center">
 
 # WinKey
-**1.21.4 fabric** minecraft cheat
+**1.21.10 fabric** minecraft cheat
 
 <img src="src/main/resources/assets/mod/icon.png" alt="logo" width="200" height="200">
 
