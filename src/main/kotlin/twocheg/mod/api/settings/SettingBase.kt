@@ -1,5 +1,6 @@
 package twocheg.mod.api.settings
 
+import twocheg.mod.api.modules.Parent
 import twocheg.mod.managers.ConfigManager
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -7,22 +8,18 @@ import kotlin.reflect.KProperty
 abstract class SettingBase<T>(
     override val name: String,
     override val default: T,
-) : Setting<T>, ReadWriteProperty<Any?, T> {
-    var visibility: () -> Boolean = { true }
-
-    private lateinit var config: ConfigManager
+) : Setting<T>, ReadWriteProperty<Parent, T> {
+    override lateinit var config: ConfigManager
 
     override var value: T = default
-        set(v) {
-            config[name] = v
-            field = v
-        }
 
-    override operator fun getValue(thisRef: Any?, property: KProperty<*>): T {
+    override fun getValue(thisRef: Parent, property: KProperty<*>): T {
+        if (!this::config.isInitialized) thisRef.registerSetting(this)
         return value
     }
 
-    override operator fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+    override fun setValue(thisRef: Parent, property: KProperty<*>, value: T) {
+        if (!this::config.isInitialized) thisRef.registerSetting(this)
         this.value = value
     }
 
@@ -30,17 +27,8 @@ abstract class SettingBase<T>(
         value = default
     }
 
-    override fun get(): T {
-        return value
-    }
-
-    override fun set(value: T) {
-        this.value = value
-    }
-
     override fun init(config: ConfigManager) {
-        // да, согласен, немного кончено, но мне похуй
         this.config = config.sub(name)
-        value = this.config[name, default]
+        value = config[name, default]
     }
 }

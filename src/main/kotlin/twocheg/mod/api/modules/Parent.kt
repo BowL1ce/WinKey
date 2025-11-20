@@ -5,8 +5,6 @@ import twocheg.mod.Categories
 import twocheg.mod.managers.ConfigManager
 import twocheg.mod.managers.ModuleManager
 import twocheg.mod.api.settings.Setting
-import kotlin.reflect.full.declaredMemberProperties
-import kotlin.reflect.jvm.isAccessible
 
 abstract class Parent(
     override val name: String,
@@ -27,7 +25,7 @@ abstract class Parent(
 
     val settings = mutableListOf<Setting<*>>()
 
-    protected val config = ConfigManager("modules.$name")
+    val config = ConfigManager("modules.$name")
 
     override var enable: Boolean = if (disableOnStartup) false else config["enabled", enabledByDefault]
         set(e) {
@@ -56,18 +54,14 @@ abstract class Parent(
         keybind = defaultKeyBind
     }
 
-    override fun init() {
-        this::class.declaredMemberProperties.forEach { prop ->
-            prop.isAccessible = true
-            val value = prop.getter.call(this)
-            if (value is Setting<*>) {
-                settings.add(value)
-                value.init(this.config)
-            }
-        }
+    fun <T : Setting<*>> registerSetting(setting: T): T {
+        setting.init(config)
+        settings.add(setting)
+        return setting
     }
 
     init {
         ModuleManager.register(this)
     }
 }
+

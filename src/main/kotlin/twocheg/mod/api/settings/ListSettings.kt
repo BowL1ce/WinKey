@@ -1,5 +1,6 @@
 package twocheg.mod.api.settings
 
+import twocheg.mod.api.modules.Parent
 import twocheg.mod.managers.ConfigManager
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
@@ -7,10 +8,10 @@ import kotlin.reflect.KProperty
 class ListSettings<T>(
     override val name: String,
     vararg values: T
-) : Setting<T>, ReadWriteProperty<Any?, T> {
+) : Setting<T>, ReadWriteProperty<Parent, T> {
     val values = values.toList()
 
-    private lateinit var config: ConfigManager
+    override lateinit var config: ConfigManager
 
     override val default: T = values.first()
     val defaultIndex = 0
@@ -27,11 +28,13 @@ class ListSettings<T>(
             field = v
         }
 
-    override fun getValue(thisRef: Any?, property: KProperty<*>): T {
+    override fun getValue(thisRef: Parent, property: KProperty<*>): T {
+        if (!this::config.isInitialized) thisRef.registerSetting(this)
         return value
     }
 
-    override fun setValue(thisRef: Any?, property: KProperty<*>, value: T) {
+    override fun setValue(thisRef: Parent, property: KProperty<*>, value: T) {
+        if (!this::config.isInitialized) thisRef.registerSetting(this)
         this.value = value
     }
 
@@ -51,21 +54,8 @@ class ListSettings<T>(
         return value
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun setAny(v: Any?) {
-        value = v as T
-    }
-
     override fun reset() {
         value = values.first()
-    }
-
-    override fun get(): T {
-        return value
-    }
-
-    override fun set(value: T) {
-        this.value = value
     }
 
     override fun init(config: ConfigManager) {

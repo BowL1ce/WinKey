@@ -44,15 +44,13 @@ class ClickGui : Parent(
     }
 
     override fun onEnable() {
+        if (categories.isEmpty()) {
+            for ((category, moduleList) in ModuleManager.byCategory) {
+                categories.add(CategoryArea(category to moduleList))
+            }
+        }
         openFactor.reset() // я не знаю, дельта накапливает значение до 1 и ему арифметически и кристально поебать, потом исправлю, когда будет не похуй (никогда)
         factory.openDefault()
-    }
-
-    override fun init() {
-        for ((category, moduleList) in ModuleManager.byCategory) {
-            categories.add(CategoryArea(category to moduleList))
-        }
-        super.init()
     }
 
     companion object Components {

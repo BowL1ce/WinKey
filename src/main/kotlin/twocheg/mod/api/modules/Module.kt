@@ -7,5 +7,4 @@ interface Module {
     var enable: Boolean
 
     fun toggle()
-    fun init()
 }

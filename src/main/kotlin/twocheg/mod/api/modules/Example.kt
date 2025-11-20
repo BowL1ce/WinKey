@@ -4,13 +4,6 @@ import org.lwjgl.glfw.GLFW
 import twocheg.mod.Categories
 import twocheg.mod.api.settings.BooleanSetting
 import twocheg.mod.api.settings.ListSettings
-import twocheg.mod.api.settings.SettingGroup
-
-data class MyGroup(
-    val bool: BooleanSetting,
-    val list: ListSettings<Int>
-) : SettingGroup("my group") { // имя по желанию, если не указывать будет использоваться название класса
-}
 
 class Example : Parent(
     name = "example",
@@ -22,18 +15,4 @@ class Example : Parent(
 ) {
     val bool by BooleanSetting("boolean", false)
     val list by ListSettings("list", 1, 2, 3)
-
-    val group = MyGroup(
-        BooleanSetting("boolean 2", true),
-        ListSettings("list 2", 1, 2, 3)
-    )
-    // прото так делегирование в группах не работает
-    // если очень хочется, делайте так
-    val groupBool by group.bool
-    // group.bool.value - без делегирования
-
-    fun test() {
-        println(groupBool)
-
-    }
 }
